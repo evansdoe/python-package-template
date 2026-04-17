@@ -25,6 +25,8 @@ uv sync --all-extras --all-groups
 ### Pre-commit Hooks
 
 ```bash
+# Requires a git repository — run git init first if you haven't already
+git init && git add .
 uv run pre-commit install
 ```
 {%- endif %}

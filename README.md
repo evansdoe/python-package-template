@@ -74,9 +74,12 @@ cd your-new-project
 uv sync --all-extras --all-groups
 ```
 
-### 3. Start developing
+### 3. Initialize git and start developing
 
 ```bash
+# Initialize the repository
+git init && git add . && git commit -m "Initial commit"
+
 # Install pre-commit hooks
 uv run pre-commit install
 

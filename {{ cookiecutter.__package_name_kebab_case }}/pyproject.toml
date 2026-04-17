@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "{{ cookiecutter.__package_name_kebab_case }}"
 version = "0.0.1"
-requires-python = "~={{ cookiecutter.python_version }}"
+requires-python = "~={{ cookiecutter.python_version }}.0"
 description = "{{ cookiecutter.package_description }}"
 authors = [{ name = "{{ cookiecutter.author_name }}", email = "{{ cookiecutter.author_email }}" }]
 readme = "README.md"

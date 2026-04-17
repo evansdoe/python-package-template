@@ -110,6 +110,7 @@ if IS_SUBPROJECT:
 
 print("  Next steps:")
 print(f"    cd {PACKAGE_SLUG}")
+print("    git init && git add . && git commit -m 'Initial commit'")
 print("    uv sync --all-extras --all-groups")
 if "{{ cookiecutter.include_precommit }}" == "True":
     print("    uv run pre-commit install")
