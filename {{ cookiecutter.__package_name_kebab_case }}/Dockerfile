@@ -1,7 +1,7 @@
 ARG VENV_PATH="/opt/venv"
 ARG PYTHON_VERSION={{ cookiecutter.python_version }}
 
-{%- if cookiecutter.include_gpu %}
+{%- if cookiecutter.include_gpu | string == "True" %}
 ## GPU: use NVIDIA CUDA base image
 ## The cuda version specified here must match the one in `.devcontainer/docker-compose.yml`
 ARG FROM_IMAGE=nvidia/cuda:12.4.1-runtime-ubuntu22.04

@@ -1,4 +1,4 @@
-{%- if cookiecutter.is_subproject -%}
+{%- if cookiecutter.is_subproject | string == "True" -%}
 # Child pipeline for {{ cookiecutter.package_name }}
 # Included from the root .gitlab-ci.yml when files under src/{{ cookiecutter.__package_name_kebab_case }}/ change.
 {%- else -%}
@@ -6,20 +6,20 @@
 {%- endif %}
 
 stages:
-{%- if cookiecutter.include_security_scans %}
+{%- if cookiecutter.include_security_scans | string == "True" %}
   - sast
 {%- endif %}
   - test
-{%- if cookiecutter.include_docker %}
+{%- if cookiecutter.include_docker | string == "True" %}
   - build
 {%- endif %}
-{%- if cookiecutter.include_pypi_publish %}
+{%- if cookiecutter.include_pypi_publish | string == "True" %}
   - publish
 {%- endif %}
-{%- if cookiecutter.include_mkdocs %}
+{%- if cookiecutter.include_mkdocs | string == "True" %}
   - pages
 {%- endif %}
-{%- if cookiecutter.include_security_scans %}
+{%- if cookiecutter.include_security_scans | string == "True" %}
 
 include:
   - template: Security/SAST.gitlab-ci.yml
@@ -28,7 +28,7 @@ include:
 {%- endif %}
 
 variables:
-  {%- if cookiecutter.is_subproject %}
+  {%- if cookiecutter.is_subproject | string == "True" %}
   WORKING_DIR: src/{{ cookiecutter.__package_name_kebab_case }}
   {%- else %}
   WORKING_DIR: .
@@ -121,7 +121,7 @@ test:
         coverage_format: cobertura
         path: ${WORKING_DIR}/coverage.xml
     expire_in: 1 week
-{%- if cookiecutter.include_docker %}
+{%- if cookiecutter.include_docker | string == "True" %}
 
 # ──────────────────────────────────────────────────────────────────────────
 # Stage: build — Docker images via Kaniko (rootless)
@@ -178,7 +178,7 @@ build-runtime-image:
   variables:
     BUILD_TARGET: runtime
 {%- endif %}
-{%- if cookiecutter.include_pypi_publish %}
+{%- if cookiecutter.include_pypi_publish | string == "True" %}
 
 # ──────────────────────────────────────────────────────────────────────────
 # Stage: publish — build and publish to PyPI (or GitLab Package Registry)
@@ -204,7 +204,7 @@ publish-package:
     - if: '$CI_COMMIT_TAG =~ /^v\d+\.\d+\.\d+/'
 {%- endif %}
 
-{%- if cookiecutter.include_mkdocs %}
+{%- if cookiecutter.include_mkdocs | string == "True" %}
 
 # ──────────────────────────────────────────────────────────────────────────
 # Stage: pages — deploy MkDocs to GitLab Pages

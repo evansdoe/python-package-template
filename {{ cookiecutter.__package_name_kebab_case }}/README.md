@@ -20,7 +20,7 @@
 ```bash
 uv sync --all-extras --all-groups
 ```
-{%- if cookiecutter.include_precommit %}
+{%- if cookiecutter.include_precommit | string == "True" %}
 
 ### Pre-commit Hooks
 
@@ -66,7 +66,7 @@ uv run poe typecheck
 uv run ty check .
 ```
 {%- endif %}
-{%- if cookiecutter.include_mkdocs %}
+{%- if cookiecutter.include_mkdocs | string == "True" %}
 
 ### Documentation
 
@@ -74,7 +74,7 @@ uv run ty check .
 uv run poe docs
 ```
 {%- endif %}
-{%- if cookiecutter.include_cli %}
+{%- if cookiecutter.include_cli | string == "True" %}
 
 ### CLI
 
@@ -82,7 +82,7 @@ uv run poe docs
 uv run {{ cookiecutter.__package_name_kebab_case }} --help
 ```
 {%- endif %}
-{%- if cookiecutter.include_docker %}
+{%- if cookiecutter.include_docker | string == "True" %}
 
 ### Docker
 

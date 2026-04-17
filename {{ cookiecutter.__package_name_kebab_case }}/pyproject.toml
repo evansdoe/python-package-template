@@ -19,17 +19,17 @@ license = { text = "BSD-3-Clause" }
 classifiers = ["Programming Language :: Python :: 3"]
 dependencies = [
   # Add your dependencies here
-  {%- if cookiecutter.include_gpu %}
+  {%- if cookiecutter.include_gpu | string == "True" %}
   # "torch>=2.5.1,<2.6.0",
   {%- endif %}
-  {%- if cookiecutter.include_cli %}
+  {%- if cookiecutter.include_cli | string == "True" %}
   "typer[all]>=0.12.0",
   {%- endif %}
 ]
 
 [project.urls]
 Repository = "{{ cookiecutter.package_url }}"
-{%- if cookiecutter.include_cli %}
+{%- if cookiecutter.include_cli | string == "True" %}
 
 [project.scripts]
 {{ cookiecutter.__package_name_kebab_case }} = "{{ cookiecutter.__package_name_snake_case }}.cli:app"
@@ -42,7 +42,7 @@ environments = ["python_version == '{{ cookiecutter.python_version }}'"]
 # name = "custom-pypi"
 # url = "https://your-custom-pypi.example.com/simple/"
 # explicit = true
-{%- if cookiecutter.include_gpu %}
+{%- if cookiecutter.include_gpu | string == "True" %}
 
 # Uncomment for GPU support:
 # [[tool.uv.index]]
@@ -77,7 +77,7 @@ dev = [
   "pytest-clarity>=1.0.1",
   "pytest-cov>=4.1.0",
   "pytest-xdist>=3.3.1",
-  {%- if cookiecutter.include_mkdocs %}
+  {%- if cookiecutter.include_mkdocs | string == "True" %}
   "mkdocs>=1.4.3",
   "mkdocs-material>=9.1.15",
   "mkdocstrings[python]>=0.22.0",
@@ -87,7 +87,7 @@ dev = [
   {%- elif cookiecutter.type_checker == "ty" %}
   "ty>=0.0.31",
   {%- endif %}
-  {%- if cookiecutter.include_precommit %}
+  {%- if cookiecutter.include_precommit | string == "True" %}
   "pre-commit>=3.7.0",
   {%- endif %}
   "cruft>=2.15.0",
@@ -124,7 +124,7 @@ check_licenses = [
     "_check_licenses",
 ]
 
-{%- if cookiecutter.include_mkdocs %}
+{%- if cookiecutter.include_mkdocs | string == "True" %}
 docs = "mkdocs serve"
 {%- endif %}
 precommit = ["_format", "_sort_imports", "_lint"]
@@ -256,6 +256,7 @@ requirement_txt_file = "./requirements.txt"
 reporting_txt_file = "./liccheck_reporting.txt" # by default is None
 
 [tool.liccheck.authorized_packages]
+# Python software license (see http://zesty.ca/python/uuid.README.txt)
 uuid = "1.30"
 matplotlib-inline = ">=0.1.0"
 # cookiecutter reports UNKNOWN on PyPI but is actually BSD-3-Clause

@@ -1,4 +1,4 @@
-{%- if cookiecutter.is_subproject %}
+{%- if cookiecutter.is_subproject | string == "True" %}
 # Root CI orchestrator — detects which sub-projects changed and triggers their pipelines.
 # To add a new sub-project (e.g. src/new-module):
 #   1. Add a path filter entry under `changes` below
@@ -263,7 +263,7 @@ jobs:
         with:
           name: junit-results-{{ cookiecutter.__package_name_kebab_case }}
           path: python-junit.xml
-  {%- if cookiecutter.include_docker %}
+  {%- if cookiecutter.include_docker | string == "True" %}
 
   # --------------------------------------------------------------------------
   # Stage: provision — build & dev images

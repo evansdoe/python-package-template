@@ -1,7 +1,7 @@
 services:
   devcontainer:
     container_name: ${DEVCONTAINER_NAME}
-    {%- if cookiecutter.include_gpu %}
+    {%- if cookiecutter.include_gpu | string == "True" %}
 
     # Give PyTorch workers enough memory!
     shm_size: '20gb'
@@ -24,13 +24,13 @@ services:
       target: dev
       # set args for build process
       args:
-        {%- if cookiecutter.include_gpu %}
+        {%- if cookiecutter.include_gpu | string == "True" %}
         # The cuda version specified here must match the one in Dockerfile
         FROM_IMAGE: "nvidia/cuda:12.4.1-runtime-ubuntu22.04"
         {%- endif %}
         VENV_PATH: "/opt/venv"
         PYTHON_VERSION: "{{ cookiecutter.python_version }}"
-    {%- if cookiecutter.include_gpu %}
+    {%- if cookiecutter.include_gpu | string == "True" %}
 
     deploy:
       resources:
@@ -44,7 +44,7 @@ services:
 
     volumes:
       # Mounts the project folder to '/workspace'.
-      {%- if cookiecutter.is_subproject %}
+      {%- if cookiecutter.is_subproject | string == "True" %}
       - ../../../:/workspace:cached
       {%- else %}
       - ../:/workspace:cached

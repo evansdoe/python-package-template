@@ -26,7 +26,7 @@ and instructions for contributing to this project.
    ```bash
    uv sync --all-extras --all-groups
    ```
-{%- if cookiecutter.include_precommit %}
+{%- if cookiecutter.include_precommit | string == "True" %}
 
 3. Install pre-commit hooks:
 
@@ -60,7 +60,7 @@ uv run poe test
 {%- if cookiecutter.type_checker != "none" %}
 | `poe typecheck` | Run mypy type checking |
 {%- endif %}
-{%- if cookiecutter.include_mkdocs %}
+{%- if cookiecutter.include_mkdocs | string == "True" %}
 | `poe docs` | Serve documentation locally |
 {%- endif %}
 

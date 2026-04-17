@@ -3,7 +3,7 @@ version: 2
 updates:
   # Python dependencies (uv/pip ecosystem)
   - package-ecosystem: "pip"
-    {%- if cookiecutter.is_subproject %}
+    {%- if cookiecutter.is_subproject | string == "True" %}
     directory: "/src/{{ cookiecutter.__package_name_kebab_case }}"
     {%- else %}
     directory: "/"
@@ -26,11 +26,11 @@ updates:
     labels:
       - "dependencies"
       - "ci"
-  {%- if cookiecutter.include_docker %}
+  {%- if cookiecutter.include_docker | string == "True" %}
 
   # Docker
   - package-ecosystem: "docker"
-    {%- if cookiecutter.is_subproject %}
+    {%- if cookiecutter.is_subproject | string == "True" %}
     directory: "/src/{{ cookiecutter.__package_name_kebab_case }}"
     {%- else %}
     directory: "/"

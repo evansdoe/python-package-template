@@ -9,7 +9,7 @@ on:
     tags:
       - "v*"
 
-{%- if cookiecutter.is_subproject %}
+{%- if cookiecutter.is_subproject | string == "True" %}
 
 defaults:
   run:
@@ -37,7 +37,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: dist
-          path: {% if cookiecutter.is_subproject %}src/{{ cookiecutter.__package_name_kebab_case }}/{% endif %}dist/
+          path: {% if cookiecutter.is_subproject | string == "True" %}src/{{ cookiecutter.__package_name_kebab_case }}/{% endif %}dist/
 
   publish:
     name: Publish to PyPI

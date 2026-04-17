@@ -194,7 +194,7 @@ jobs:
         with:
           name: junit-results-{{ cookiecutter.__package_name_kebab_case }}
           path: src/{{ cookiecutter.__package_name_kebab_case }}/python-junit.xml
-{%- if cookiecutter.include_docker %}
+{%- if cookiecutter.include_docker | string == "True" %}
 
   # --------------------------------------------------------------------------
   # Stage: provision — build & dev images (fast-path, no source needed)

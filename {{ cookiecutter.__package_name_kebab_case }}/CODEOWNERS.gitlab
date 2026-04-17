@@ -3,7 +3,7 @@
 
 # Default owner for everything
 * @{{ cookiecutter.author_name | lower | replace(' ', '') }}
-{%- if cookiecutter.is_subproject %}
+{%- if cookiecutter.is_subproject | string == "True" %}
 
 # Sub-project specific
 /src/{{ cookiecutter.__package_name_kebab_case }}/ @{{ cookiecutter.author_name | lower | replace(' ', '') }}
