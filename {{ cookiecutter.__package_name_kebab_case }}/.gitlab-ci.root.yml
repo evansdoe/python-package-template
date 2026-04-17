@@ -1,0 +1,55 @@
+# Root CI orchestrator
+# Uses parent-child pipelines with `rules: changes:` to trigger sub-project
+# pipelines only when their files changed.
+#
+# To add a new sub-project (e.g. src/new-module):
+#   1. Add a trigger job below pointing to src/new-module/.gitlab-ci.yml
+#   2. Set its `rules: changes:` to match src/new-module/**/*
+
+stages:
+  - trigger
+
+# ──────────────────────────────────────────────────────────────────────────
+# Trigger {{ cookiecutter.__package_name_kebab_case }} child pipeline
+# ──────────────────────────────────────────────────────────────────────────
+trigger-{{ cookiecutter.__package_name_kebab_case }}:
+  stage: trigger
+  trigger:
+    include:
+      - local: src/{{ cookiecutter.__package_name_kebab_case }}/.gitlab-ci.yml
+    strategy: depend
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      changes:
+        - src/{{ cookiecutter.__package_name_kebab_case }}/**/*
+        - .gitlab-ci.yml
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+      changes:
+        - src/{{ cookiecutter.__package_name_kebab_case }}/**/*
+        - .gitlab-ci.yml
+    - if: '$CI_COMMIT_BRANCH == "dev"'
+      changes:
+        - src/{{ cookiecutter.__package_name_kebab_case }}/**/*
+        - .gitlab-ci.yml
+    - if: '$CI_COMMIT_TAG =~ /^v\d+\.\d+\.\d+/'
+    - when: manual
+      allow_failure: true
+
+# ──────────────────────────────────────────────────────────────────────────
+# Add new sub-project triggers here, e.g.:
+# trigger-new-module:
+#   stage: trigger
+#   trigger:
+#     include:
+#       - local: src/new-module/.gitlab-ci.yml
+#     strategy: depend
+#   rules:
+#     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+#       changes:
+#         - src/new-module/**/*
+#     - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+#       changes:
+#         - src/new-module/**/*
+#     - when: manual
+#       allow_failure: true
+# ──────────────────────────────────────────────────────────────────────────

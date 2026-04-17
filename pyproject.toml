@@ -1,0 +1,16 @@
+[project]
+name = "python-package-template"
+version = "1.0.0"
+description = "A modern Cookiecutter template for Python packages with uv, monorepo support, and GitHub/GitLab CI."
+requires-python = ">=3.11"
+readme = "README.md"
+license = { text = "MIT" }
+authors = [{ name = "Evans Doe Ocansey" }]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-cookies>=0.7.0",
+    "pytest-xdist>=3.5.0",
+    "pyyaml>=6.0",
+]

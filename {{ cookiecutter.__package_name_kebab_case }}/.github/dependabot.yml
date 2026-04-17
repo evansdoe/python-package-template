@@ -1,0 +1,44 @@
+# https://docs.github.com/en/code-security/dependabot/dependabot-version-updates
+version: 2
+updates:
+  # Python dependencies (uv/pip ecosystem)
+  - package-ecosystem: "pip"
+    {%- if cookiecutter.is_subproject %}
+    directory: "/src/{{ cookiecutter.__package_name_kebab_case }}"
+    {%- else %}
+    directory: "/"
+    {%- endif %}
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+      - "python"
+
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "ci"
+  {%- if cookiecutter.include_docker %}
+
+  # Docker
+  - package-ecosystem: "docker"
+    {%- if cookiecutter.is_subproject %}
+    directory: "/src/{{ cookiecutter.__package_name_kebab_case }}"
+    {%- else %}
+    directory: "/"
+    {%- endif %}
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    labels:
+      - "dependencies"
+      - "docker"
+  {%- endif %}

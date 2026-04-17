@@ -1,0 +1,326 @@
+# {{ cookiecutter.package_name }} pipeline
+# Called by ci.yml (root orchestrator). Can also be triggered manually.
+
+name: {{ cookiecutter.package_name }}
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+env:
+  WORKING_DIR: src/{{ cookiecutter.__package_name_kebab_case }}
+  PYTHON_VERSION: "{{ cookiecutter.python_version }}"
+  REGISTRY: ghcr.io
+  IMAGE_BASE: {% raw %}ghcr.io/${{ github.repository }}/{% endraw %}{{ cookiecutter.__package_name_snake_case }}
+
+defaults:
+  run:
+    working-directory: src/{{ cookiecutter.__package_name_kebab_case }}
+
+jobs:
+  # --------------------------------------------------------------------------
+  # Stage: sast
+  # --------------------------------------------------------------------------
+  sast:
+    name: SAST (CodeQL)
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: python
+          build-mode: none
+
+      - name: Run CodeQL analysis
+        uses: github/codeql-action/analyze@v3
+
+  # --------------------------------------------------------------------------
+  # Template drift check (non-blocking)
+  # --------------------------------------------------------------------------
+  cruft-check:
+    name: Template Drift
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v5
+        with:
+          version: "{{ cookiecutter.uv_version }}"
+
+      - name: Install Python
+        run: uv python install {% raw %}${{ env.PYTHON_VERSION }}{% endraw %}
+
+      - name: Install dependencies
+        run: uv sync --all-extras --all-groups
+
+      - name: Check template drift
+        run: uv run cruft check || echo "::warning::Project has drifted from the template. Run 'cruft update' to sync."
+
+  # --------------------------------------------------------------------------
+  # Stage: test — format, lint, license check, pytest
+  # --------------------------------------------------------------------------
+  format:
+    name: Format
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v5
+        with:
+          version: "{{ cookiecutter.uv_version }}"
+          enable-cache: true
+          cache-dependency-glob: "src/{{ cookiecutter.__package_name_kebab_case }}/uv.lock"
+
+      - name: Install Python
+        run: uv python install {% raw %}${{ env.PYTHON_VERSION }}{% endraw %}
+
+      - name: Install dependencies
+        run: uv sync --all-extras --all-groups
+
+      - name: Check formatting (black)
+        run: uv run black --check .
+
+      - name: Check import order (isort)
+        run: uv run isort --check .
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v5
+        with:
+          version: "{{ cookiecutter.uv_version }}"
+          enable-cache: true
+          cache-dependency-glob: "src/{{ cookiecutter.__package_name_kebab_case }}/uv.lock"
+
+      - name: Install Python
+        run: uv python install {% raw %}${{ env.PYTHON_VERSION }}{% endraw %}
+
+      - name: Install dependencies
+        run: uv sync --all-extras --all-groups
+
+      - name: Lint (ruff)
+        run: uv run ruff check .
+  {%- if cookiecutter.type_checker != "none" %}
+
+  typecheck:
+    name: Type Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v5
+        with:
+          version: "{{ cookiecutter.uv_version }}"
+          enable-cache: true
+          cache-dependency-glob: "src/{{ cookiecutter.__package_name_kebab_case }}/uv.lock"
+
+      - name: Install Python
+        run: uv python install {% raw %}${{ env.PYTHON_VERSION }}{% endraw %}
+
+      - name: Install dependencies
+        run: uv sync --all-extras --all-groups
+
+{% if cookiecutter.type_checker == "mypy" %}
+      - name: Type check (mypy)
+        run: uv run mypy .
+{% elif cookiecutter.type_checker == "ty" %}
+      - name: Type check (ty)
+        run: uv run ty check .
+{% endif %}
+  {%- endif %}
+
+  license-check:
+    name: License Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v5
+        with:
+          version: "{{ cookiecutter.uv_version }}"
+          enable-cache: true
+          cache-dependency-glob: "src/{{ cookiecutter.__package_name_kebab_case }}/uv.lock"
+
+      - name: Install Python
+        run: uv python install {% raw %}${{ env.PYTHON_VERSION }}{% endraw %}
+
+      - name: Install dependencies
+        run: uv sync --all-extras --all-groups
+
+      - name: Check licenses
+        run: uv run poe check_licenses
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v5
+        with:
+          version: "{{ cookiecutter.uv_version }}"
+          enable-cache: true
+          cache-dependency-glob: "src/{{ cookiecutter.__package_name_kebab_case }}/uv.lock"
+
+      - name: Install Python
+        run: uv python install {% raw %}${{ env.PYTHON_VERSION }}{% endraw %}
+
+      - name: Install dependencies
+        run: uv sync --all-extras --all-groups
+
+      - name: Run pytest
+        run: uv run poe test
+
+      - name: Upload coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report-{{ cookiecutter.__package_name_kebab_case }}
+          path: |
+            src/{{ cookiecutter.__package_name_kebab_case }}/coverage.xml
+            src/{{ cookiecutter.__package_name_kebab_case }}/htmlcov/
+
+      - name: Upload JUnit results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: junit-results-{{ cookiecutter.__package_name_kebab_case }}
+          path: src/{{ cookiecutter.__package_name_kebab_case }}/python-junit.xml
+{%- if cookiecutter.include_docker %}
+
+  # --------------------------------------------------------------------------
+  # Stage: provision — build & dev images (fast-path, no source needed)
+  # --------------------------------------------------------------------------
+  build-image:
+    name: Docker — build stage
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/login-action@v3
+        with:
+          registry: {% raw %}${{ env.REGISTRY }}{% endraw %}
+
+          username: {% raw %}${{ github.actor }}{% endraw %}
+
+          password: {% raw %}${{ secrets.GITHUB_TOKEN }}{% endraw %}
+
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/build-push-action@v6
+        with:
+          context: src/{{ cookiecutter.__package_name_kebab_case }}
+          file: src/{{ cookiecutter.__package_name_kebab_case }}/Dockerfile
+          target: build
+          push: true
+          build-args: |
+            VENV_PATH=/opt/venv
+            PYTHON_VERSION={% raw %}${{ env.PYTHON_VERSION }}{% endraw %}
+
+          tags: |
+            {% raw %}${{ env.IMAGE_BASE }}/build:latest
+            ${{ env.IMAGE_BASE }}/build:${{ github.ref_name }}_${{ github.run_number }}_${{ github.sha }}{% endraw %}
+
+          cache-from: {% raw %}type=registry,ref=${{ env.IMAGE_BASE }}/build:cache{% endraw %}
+
+          cache-to: {% raw %}type=registry,ref=${{ env.IMAGE_BASE }}/build:cache,mode=max{% endraw %}
+
+  build-dev-image:
+    name: Docker — dev stage
+    runs-on: ubuntu-latest
+    needs: build-image
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/login-action@v3
+        with:
+          registry: {% raw %}${{ env.REGISTRY }}{% endraw %}
+
+          username: {% raw %}${{ github.actor }}{% endraw %}
+
+          password: {% raw %}${{ secrets.GITHUB_TOKEN }}{% endraw %}
+
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/build-push-action@v6
+        with:
+          context: src/{{ cookiecutter.__package_name_kebab_case }}
+          file: src/{{ cookiecutter.__package_name_kebab_case }}/Dockerfile
+          target: dev
+          push: true
+          build-args: |
+            VENV_PATH=/opt/venv
+            PYTHON_VERSION={% raw %}${{ env.PYTHON_VERSION }}{% endraw %}
+
+          tags: |
+            {% raw %}${{ env.IMAGE_BASE }}/dev:latest
+            ${{ env.IMAGE_BASE }}/dev:${{ github.ref_name }}_${{ github.run_number }}_${{ github.sha }}{% endraw %}
+
+          cache-from: |
+            {% raw %}type=registry,ref=${{ env.IMAGE_BASE }}/dev:cache
+            type=registry,ref=${{ env.IMAGE_BASE }}/build:cache{% endraw %}
+
+          cache-to: {% raw %}type=registry,ref=${{ env.IMAGE_BASE }}/dev:cache,mode=max{% endraw %}
+
+  # --------------------------------------------------------------------------
+  # Stage: build — runtime (production) image
+  # --------------------------------------------------------------------------
+  build-runtime-image:
+    name: Docker — runtime stage
+    runs-on: ubuntu-latest
+    {%- if cookiecutter.type_checker != "none" %}
+    needs: [test, format, lint, typecheck, license-check, build-image]
+    {%- else %}
+    needs: [test, format, lint, license-check, build-image]
+    {%- endif %}
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/login-action@v3
+        with:
+          registry: {% raw %}${{ env.REGISTRY }}{% endraw %}
+
+          username: {% raw %}${{ github.actor }}{% endraw %}
+
+          password: {% raw %}${{ secrets.GITHUB_TOKEN }}{% endraw %}
+
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/build-push-action@v6
+        with:
+          context: src/{{ cookiecutter.__package_name_kebab_case }}
+          file: src/{{ cookiecutter.__package_name_kebab_case }}/Dockerfile
+          target: runtime
+          push: true
+          build-args: |
+            VENV_PATH=/opt/venv
+            PYTHON_VERSION={% raw %}${{ env.PYTHON_VERSION }}{% endraw %}
+
+          tags: |
+            {% raw %}${{ env.IMAGE_BASE }}/runtime:latest
+            ${{ env.IMAGE_BASE }}/runtime:${{ github.ref_name }}_${{ github.run_number }}_${{ github.sha }}{% endraw %}
+
+          cache-from: |
+            {% raw %}type=registry,ref=${{ env.IMAGE_BASE }}/runtime:cache
+            type=registry,ref=${{ env.IMAGE_BASE }}/build:cache{% endraw %}
+
+          cache-to: {% raw %}type=registry,ref=${{ env.IMAGE_BASE }}/runtime:cache,mode=max{% endraw %}
+
+{%- endif %}

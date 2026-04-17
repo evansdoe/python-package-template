@@ -1,0 +1,10 @@
+# Code Owners — these users will be automatically requested for review on MRs
+# https://docs.gitlab.com/ee/user/project/codeowners/
+
+# Default owner for everything
+* @{{ cookiecutter.author_name | lower | replace(' ', '') }}
+{%- if cookiecutter.is_subproject %}
+
+# Sub-project specific
+/src/{{ cookiecutter.__package_name_kebab_case }}/ @{{ cookiecutter.author_name | lower | replace(' ', '') }}
+{%- endif %}

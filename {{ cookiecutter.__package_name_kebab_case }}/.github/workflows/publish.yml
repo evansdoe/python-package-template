@@ -1,0 +1,79 @@
+# Publish to PyPI on tag push
+# Uses trusted publishing (OIDC) — no API token needed.
+# Setup: https://docs.pypi.org/trusted-publishers/creating-a-project-through-oidc/
+
+name: Publish to PyPI
+
+on:
+  push:
+    tags:
+      - "v*"
+
+{%- if cookiecutter.is_subproject %}
+
+defaults:
+  run:
+    working-directory: src/{{ cookiecutter.__package_name_kebab_case }}
+{%- endif %}
+
+jobs:
+  build:
+    name: Build distribution
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v5
+        with:
+          version: "{{ cookiecutter.uv_version }}"
+
+      - name: Install Python
+        run: uv python install {{ cookiecutter.python_version }}
+
+      - name: Build package
+        run: uv build
+
+      - name: Upload dist artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: {% if cookiecutter.is_subproject %}src/{{ cookiecutter.__package_name_kebab_case }}/{% endif %}dist/
+
+  publish:
+    name: Publish to PyPI
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: {% raw %}https://pypi.org/project/{% endraw %}{{ cookiecutter.__package_name_kebab_case }}/
+    permissions:
+      id-token: write  # required for trusted publishing
+    steps:
+      - name: Download dist artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+
+  # Optional: also publish to TestPyPI for pre-release tags
+  # publish-test:
+  #   name: Publish to TestPyPI
+  #   needs: build
+  #   if: contains(github.ref, 'rc') || contains(github.ref, 'beta') || contains(github.ref, 'alpha')
+  #   runs-on: ubuntu-latest
+  #   environment:
+  #     name: testpypi
+  #     url: {% raw %}https://test.pypi.org/project/{% endraw %}{{ cookiecutter.__package_name_kebab_case }}/
+  #   permissions:
+  #     id-token: write
+  #   steps:
+  #     - uses: actions/download-artifact@v4
+  #       with:
+  #         name: dist
+  #         path: dist/
+  #     - uses: pypa/gh-action-pypi-publish@release/v1
+  #       with:
+  #         repository-url: https://test.pypi.org/legacy/
