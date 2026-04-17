@@ -106,6 +106,40 @@ GitHub Actions pushes images to GHCR:
 - `ghcr.io/<owner>/<repo>/{{ cookiecutter.__package_name_snake_case }}/runtime`
 {%- endif %}
 {%- endif %}
+{%- if cookiecutter.include_devcontainer | string == "True" %}
+
+### Development in a DevContainer (Recommended)
+
+The easiest way to get a fully working development environment is via
+[VS Code DevContainers](https://code.visualstudio.com/docs/devcontainers/containers).
+
+**Prerequisites:** [Docker](https://www.docker.com/products/docker-desktop/) and
+[VS Code](https://code.visualstudio.com/) with the
+[Dev Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers).
+
+1. Open the project in VS Code:
+
+   ```bash
+   cd {{ cookiecutter.__package_name_kebab_case }}
+   code .
+   ```
+
+2. VS Code will detect the `.devcontainer/` folder and prompt:
+   **"Reopen in Container"** — click it (or use **Ctrl+Shift+P** →
+   *Dev Containers: Reopen in Container*).
+
+3. The container builds automatically with all dependencies, tools, and
+   VS Code extensions pre-installed. Once inside, everything just works:
+
+   ```bash
+   poeprecommit     # format + lint
+   poecheck         # full quality checks
+   poetest          # run tests
+   ```
+
+   No need to activate any virtual environment — the container's Python
+   is already configured at `/opt/venv` and on the PATH.
+{%- endif %}
 
 
 
