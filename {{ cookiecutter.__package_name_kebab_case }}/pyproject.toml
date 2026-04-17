@@ -256,6 +256,9 @@ requirement_txt_file = "./requirements.txt"
 reporting_txt_file = "./liccheck_reporting.txt" # by default is None
 
 [tool.liccheck.authorized_packages]
-# Python software license (see http://zesty.ca/python/uuid.README.txt)
 uuid = "1.30"
 matplotlib-inline = ">=0.1.0"
+# cookiecutter reports UNKNOWN on PyPI but is actually BSD-3-Clause
+cookiecutter = ">=2.0"
+# text-unidecode is dual-licensed Artistic/GPLv2+ — a transitive dev dep via cruft
+text-unidecode = ">=1.3"
