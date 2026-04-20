@@ -23,7 +23,7 @@ jobs:
     outputs:
       {{ cookiecutter.__package_name_kebab_case }}: {% raw %}${{ steps.filter.outputs.{% endraw %}{{ cookiecutter.__package_name_kebab_case }}{% raw %} }}{% endraw %}
 
-      # add new sub-projects here, e.g.:
+      # Adding another sub-project? Add an output entry here:
       # new-module: {% raw %}${{ steps.filter.outputs.new-module }}{% endraw %}
 
     steps:
@@ -38,10 +38,11 @@ jobs:
               - 'src/{{ cookiecutter.__package_name_kebab_case }}/**'
               - '.github/workflows/{{ cookiecutter.__package_name_kebab_case }}.yml'
               - '.github/workflows/ci.yml'
-            # add new sub-projects here, e.g.:
+            # Adding another sub-project? Add a filter entry here:
             # new-module:
             #   - 'src/new-module/**'
             #   - '.github/workflows/new-module.yml'
+            #   - '.github/workflows/ci.yml'
 
   # --------------------------------------------------------------------------
   # Trigger {{ cookiecutter.__package_name_kebab_case }} child pipeline
@@ -59,8 +60,12 @@ jobs:
       security-events: write
 
   # --------------------------------------------------------------------------
-  # Add new sub-project pipelines here, e.g.:
+  # Adding another sub-project? Copy the block below and replace "new-module":
+  # (Or: generate a new subproject with cruft and copy its trigger block
+  #  from the generated ci.yml into this file)
+  #
   # new-module:
+  #   name: new-module pipeline
   #   needs: changes
   #   if: needs.changes.outputs.new-module == 'true' || github.event_name == 'workflow_dispatch'
   #   uses: ./.github/workflows/new-module.yml

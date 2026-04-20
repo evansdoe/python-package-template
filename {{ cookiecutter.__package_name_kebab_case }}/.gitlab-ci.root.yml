@@ -36,7 +36,11 @@ trigger-{{ cookiecutter.__package_name_kebab_case }}:
       allow_failure: true
 
 # ──────────────────────────────────────────────────────────────────────────
-# Add new sub-project triggers here, e.g.:
+# Adding another sub-project? Copy the trigger block below, then:
+#   1. Replace "new-module" with your module name
+#   2. Or: generate a new subproject with cruft and copy its trigger block
+#      from the generated .gitlab-ci.root.yml into this file
+#
 # trigger-new-module:
 #   stage: trigger
 #   trigger:
@@ -47,9 +51,16 @@ trigger-{{ cookiecutter.__package_name_kebab_case }}:
 #     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
 #       changes:
 #         - src/new-module/**/*
+#         - .gitlab-ci.yml
 #     - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
 #       changes:
 #         - src/new-module/**/*
+#         - .gitlab-ci.yml
+#     - if: '$CI_COMMIT_BRANCH == "dev"'
+#       changes:
+#         - src/new-module/**/*
+#         - .gitlab-ci.yml
+#     - if: '$CI_COMMIT_TAG =~ /^v\d+\.\d+\.\d+/'
 #     - when: manual
 #       allow_failure: true
 # ──────────────────────────────────────────────────────────────────────────

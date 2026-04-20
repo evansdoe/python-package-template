@@ -18,7 +18,7 @@ This project is a **subproject** designed to live under `src/` in a monorepo.
 ### 1. Place the project in your monorepo
 
 ```bash
-# Move into your monorepo's src/ directory
+# Move into your monorepo's src/ directory (if not already there)
 mv {{ cookiecutter.__package_name_kebab_case }} <monorepo>/src/
 cd <monorepo>
 ```
@@ -28,34 +28,79 @@ cd <monorepo>
 
 **GitHub Actions:**
 
+<details>
+<summary><strong>First subproject</strong> (monorepo has no <code>.github/workflows/ci.yml</code> yet)</summary>
+
 ```bash
-# Copy the orchestrator and module workflow to the monorepo root
+mkdir -p .github/workflows
 cp src/{{ cookiecutter.__package_name_kebab_case }}/.github/workflows/ci.yml .github/workflows/ci.yml
 cp src/{{ cookiecutter.__package_name_kebab_case }}/.github/workflows/{{ cookiecutter.__package_name_kebab_case }}.yml .github/workflows/
-
-# If the monorepo already has a ci.yml, merge the new trigger job into it instead.
 ```
+
+</details>
+
+<details>
+<summary><strong>Additional subproject</strong> (<code>.github/workflows/ci.yml</code> already exists)</summary>
+
+Open `src/{{ cookiecutter.__package_name_kebab_case }}/.github/workflows/ci.yml` and copy these
+three pieces into your existing `<monorepo>/.github/workflows/ci.yml`:
+
+1. The **output** line from the `changes` job's `outputs:` section
+2. The **path filter** entry from the `filters:` block
+3. The **trigger job** block (`{{ cookiecutter.__package_name_kebab_case }}: ...`)
+
+Then copy the module workflow (no merging needed — it's a new file):
+
+```bash
+cp src/{{ cookiecutter.__package_name_kebab_case }}/.github/workflows/{{ cookiecutter.__package_name_kebab_case }}.yml .github/workflows/
+```
+
+The existing `ci.yml` has commented examples showing exactly where to paste each piece.
+
+</details>
 {%- endif %}
 {%- if cookiecutter.ci_platform in ["gitlab", "both"] %}
 
 **GitLab CI:**
 
+<details>
+<summary><strong>First subproject</strong> (no <code>.gitlab-ci.yml</code> at monorepo root yet)</summary>
+
 ```bash
-# Move the orchestrator to the monorepo root
 mv src/{{ cookiecutter.__package_name_kebab_case }}/.gitlab-ci.root.yml .gitlab-ci.yml
-
-# If the monorepo already has a .gitlab-ci.yml, merge the
-# trigger-{{ cookiecutter.__package_name_kebab_case }} job into it instead.
-
-# Move CODEOWNERS to the monorepo root
 mv src/{{ cookiecutter.__package_name_kebab_case }}/CODEOWNERS .
 ```
-{%- endif %}
 
-### 3. Initialize git and install dependencies
+</details>
+
+<details>
+<summary><strong>Additional subproject</strong> (<code>.gitlab-ci.yml</code> already exists)</summary>
+
+Copy the `trigger-{{ cookiecutter.__package_name_kebab_case }}` job from
+`src/{{ cookiecutter.__package_name_kebab_case }}/.gitlab-ci.root.yml` into your existing
+`<monorepo>/.gitlab-ci.yml`. The file has a commented example showing
+exactly where to paste it.
+
+Then clean up:
 
 ```bash
-git init && git add . && git commit -m "Initial commit"
+rm src/{{ cookiecutter.__package_name_kebab_case }}/.gitlab-ci.root.yml
+```
+
+Merge the `{{ cookiecutter.__package_name_kebab_case }}` entry from
+`src/{{ cookiecutter.__package_name_kebab_case }}/CODEOWNERS` into your existing
+`<monorepo>/CODEOWNERS`, then:
+
+```bash
+rm src/{{ cookiecutter.__package_name_kebab_case }}/CODEOWNERS
+```
+
+</details>
+{%- endif %}
+
+### 3. Install dependencies
+
+```bash
 cd src/{{ cookiecutter.__package_name_kebab_case }}
 uv sync --all-extras --all-groups
 ```
