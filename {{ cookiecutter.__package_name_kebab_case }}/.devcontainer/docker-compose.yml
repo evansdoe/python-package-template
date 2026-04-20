@@ -1,7 +1,7 @@
 services:
   devcontainer:
     container_name: ${DEVCONTAINER_NAME}
-    {%- if cookiecutter.include_gpu | string == "True" %}
+    {%- if cookiecutter.accelerator in ["cuda", "rocm"] %}
 
     # Give PyTorch workers enough memory!
     shm_size: '20gb'
@@ -24,13 +24,16 @@ services:
       target: dev
       # set args for build process
       args:
-        {%- if cookiecutter.include_gpu | string == "True" %}
-        # The cuda version specified here must match the one in Dockerfile
+        {%- if cookiecutter.accelerator == "cuda" %}
+        # The CUDA version specified here must match the one in Dockerfile
         FROM_IMAGE: "nvidia/cuda:12.4.1-runtime-ubuntu22.04"
+        {%- elif cookiecutter.accelerator == "rocm" %}
+        # The ROCm version specified here must match the one in Dockerfile
+        FROM_IMAGE: "rocm/dev-ubuntu-22.04:6.2"
         {%- endif %}
         VENV_PATH: "/opt/venv"
         PYTHON_VERSION: "{{ cookiecutter.python_version }}"
-    {%- if cookiecutter.include_gpu | string == "True" %}
+    {%- if cookiecutter.accelerator == "cuda" %}
 
     deploy:
       resources:
@@ -40,6 +43,14 @@ services:
               count: all
               capabilities:
                 - gpu
+    {%- elif cookiecutter.accelerator == "rocm" %}
+
+    devices:
+      - /dev/kfd:/dev/kfd
+      - /dev/dri:/dev/dri
+    group_add:
+      - video
+      - render
     {%- endif %}
 
     volumes:
