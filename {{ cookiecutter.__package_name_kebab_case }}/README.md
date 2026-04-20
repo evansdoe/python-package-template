@@ -98,7 +98,14 @@ rm src/{{ cookiecutter.__package_name_kebab_case }}/CODEOWNERS
 </details>
 {%- endif %}
 
-### 3. Install dependencies
+### 3. Initialize git (if this is a new monorepo)
+
+```bash
+cd <monorepo>
+git init && git add . && git commit -m "Initial commit"
+```
+
+### 4. Install dependencies
 
 ```bash
 cd src/{{ cookiecutter.__package_name_kebab_case }}
@@ -106,16 +113,15 @@ uv sync --all-extras --all-groups
 ```
 {%- if cookiecutter.include_precommit | string == "True" %}
 
-### 4. Install pre-commit hooks
+### 5. Install pre-commit hooks (requires git)
 
 ```bash
-# From the monorepo root
-cd ../..
-uv run --directory src/{{ cookiecutter.__package_name_kebab_case }} pre-commit install
+cd src/{{ cookiecutter.__package_name_kebab_case }}
+uv run pre-commit install
 ```
 {%- endif %}
 
-### {{ "5" if cookiecutter.include_precommit | string == "True" else "4" }}. Verify everything works
+### {{ "6" if cookiecutter.include_precommit | string == "True" else "5" }}. Verify everything works
 
 ```bash
 cd src/{{ cookiecutter.__package_name_kebab_case }}

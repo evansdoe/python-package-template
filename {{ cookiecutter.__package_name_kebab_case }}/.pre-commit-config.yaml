@@ -40,14 +40,15 @@ repos:
         args: ['--ignore-missing-imports']
 {%- elif cookiecutter.type_checker == "ty" %}
 
-  # ty is still in beta; using local hook until an official pre-commit mirror stabilizes.
+  # ty is still in beta; no official pre-commit mirror yet.
   # See https://github.com/astral-sh/ty for updates.
   - repo: local
     hooks:
       - id: ty
         name: ty (type check)
-        entry: uv run ty check
-        language: system
+        entry: ty check
+        language: python
         types: [python]
         pass_filenames: false
+        additional_dependencies: ['ty>=0.0.31']
 {%- endif %}
