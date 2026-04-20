@@ -2,7 +2,7 @@
   "package_name": "My Package",
   "package_description": "One or two sentence description of the package...",
   "is_subproject": true,
-  "include_gpu": false,
+  "accelerator": ["none", "cuda", "rocm", "mps", "tpu"],
   "package_url": "https://github.com/user/my-package",
   "author_name": "Your Name",
   "author_email": "your.name@example.com",

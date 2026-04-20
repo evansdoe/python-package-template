@@ -22,7 +22,7 @@ DEFAULTS = {
     "package_name": "Test Package",
     "package_description": "A test project",
     "is_subproject": "True",
-    "include_gpu": "False",
+    "accelerator": "none",
     "package_url": "https://github.com/test/test-package",
     "author_name": "Test Author",
     "author_email": "test@example.com",
@@ -231,27 +231,49 @@ def test_cli_toggle(cookies):
 # ──────────────────────────────────────────────────────────────────────────
 # GPU toggle
 # ──────────────────────────────────────────────────────────────────────────
-def test_gpu_dockerfile(cookies):
-    """GPU toggle changes FROM_IMAGE in Dockerfile."""
-    result_gpu = bake(cookies, include_gpu="True")
-    dockerfile = (result_gpu.project_path / "Dockerfile").read_text()
-    assert "nvidia/cuda" in dockerfile
+@pytest.mark.parametrize(
+    "accelerator,expected_image",
+    [
+        ("none", "debian:stable-slim"),
+        ("cuda", "nvidia/cuda"),
+        ("rocm", "rocm/dev-ubuntu"),
+        ("mps", "debian:stable-slim"),
+        ("tpu", "debian:stable-slim"),
+    ],
+)
+def test_accelerator_dockerfile(cookies, accelerator, expected_image):
+    """Accelerator choice sets correct FROM_IMAGE in Dockerfile."""
+    result = bake(cookies, accelerator=accelerator)
+    dockerfile = (result.project_path / "Dockerfile").read_text()
+    assert expected_image in dockerfile
 
-    result_cpu = bake(cookies, include_gpu="False")
-    dockerfile = (result_cpu.project_path / "Dockerfile").read_text()
-    assert "debian:stable-slim" in dockerfile
 
-
-def test_gpu_docker_compose(cookies):
-    """GPU toggle adds deploy block and shm_size to docker-compose."""
-    result_gpu = bake(cookies, include_gpu="True")
-    compose = (result_gpu.project_path / ".devcontainer" / "docker-compose.yml").read_text()
+def test_accelerator_docker_compose_cuda(cookies):
+    """CUDA adds nvidia deploy block and shm_size."""
+    result = bake(cookies, accelerator="cuda")
+    compose = (result.project_path / ".devcontainer" / "docker-compose.yml").read_text()
     assert "shm_size" in compose
     assert "nvidia" in compose
+    assert "driver: nvidia" in compose
 
-    result_cpu = bake(cookies, include_gpu="False")
-    compose = (result_cpu.project_path / ".devcontainer" / "docker-compose.yml").read_text()
+
+def test_accelerator_docker_compose_rocm(cookies):
+    """ROCm adds AMD device passthrough and shm_size."""
+    result = bake(cookies, accelerator="rocm")
+    compose = (result.project_path / ".devcontainer" / "docker-compose.yml").read_text()
+    assert "shm_size" in compose
+    assert "/dev/kfd" in compose
+    assert "/dev/dri" in compose
+
+
+@pytest.mark.parametrize("accelerator", ["none", "mps", "tpu"])
+def test_accelerator_docker_compose_no_gpu(cookies, accelerator):
+    """Non-Docker accelerators have no GPU blocks in docker-compose."""
+    result = bake(cookies, accelerator=accelerator)
+    compose = (result.project_path / ".devcontainer" / "docker-compose.yml").read_text()
     assert "shm_size" not in compose
+    assert "nvidia" not in compose
+    assert "/dev/kfd" not in compose
 
 
 # ──────────────────────────────────────────────────────────────────────────
