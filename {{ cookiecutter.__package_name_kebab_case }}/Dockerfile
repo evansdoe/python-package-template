@@ -1,12 +1,14 @@
 ARG VENV_PATH="/opt/venv"
 ARG PYTHON_VERSION={{ cookiecutter.python_version }}
 
-{%- if cookiecutter.include_gpu | string == "True" %}
-## GPU: use NVIDIA CUDA base image
-## The cuda version specified here must match the one in `.devcontainer/docker-compose.yml`
+{%- if cookiecutter.accelerator == "cuda" %}
+## NVIDIA CUDA — must match the version in `.devcontainer/docker-compose.yml`
 ARG FROM_IMAGE=nvidia/cuda:12.4.1-runtime-ubuntu22.04
+{%- elif cookiecutter.accelerator == "rocm" %}
+## AMD ROCm
+ARG FROM_IMAGE=rocm/dev-ubuntu-22.04:6.2
 {%- else %}
-## CPU-only: use Debian slim
+## CPU-only (also used for MPS/TPU — GPU passthrough is not Docker-based for those)
 ARG FROM_IMAGE=debian:stable-slim
 {%- endif %}
 
