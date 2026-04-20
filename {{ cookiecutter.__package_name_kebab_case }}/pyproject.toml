@@ -19,8 +19,12 @@ license = { text = "BSD-3-Clause" }
 classifiers = ["Programming Language :: Python :: 3"]
 dependencies = [
   # Add your dependencies here
-  {%- if cookiecutter.include_gpu | string == "True" %}
+  {%- if cookiecutter.accelerator in ["cuda", "rocm", "mps"] %}
   # "torch>=2.5.1,<2.6.0",
+  {%- endif %}
+  {%- if cookiecutter.accelerator == "tpu" %}
+  # "torch>=2.5.1,<2.6.0",
+  # "torch-xla>=2.5.0",
   {%- endif %}
   {%- if cookiecutter.include_cli | string == "True" %}
   "typer[all]>=0.12.0",
@@ -42,23 +46,48 @@ environments = ["python_version == '{{ cookiecutter.python_version }}'"]
 # name = "custom-pypi"
 # url = "https://your-custom-pypi.example.com/simple/"
 # explicit = true
-{%- if cookiecutter.include_gpu | string == "True" %}
+{%- if cookiecutter.accelerator == "cuda" %}
 
-# Uncomment for GPU support:
+# Uncomment for NVIDIA CUDA GPU support:
 # [[tool.uv.index]]
-# # The cuda version specified here must match the one of `FROM_IMAGE` specified in `.devcontainer/docker-compose.yml`.
+# # The CUDA version specified here must match the one in `.devcontainer/docker-compose.yml`
 # name = "pytorch-cu124"
 # url = "https://download.pytorch.org/whl/cu124"
 # explicit = true
 #
 # [tool.uv.sources]
-# # The cuda version specified here must match the one of `FROM_IMAGE` specified in `.devcontainer/docker-compose.yml`.
 # torch = [
 #   {index = "pytorch-cu124", marker = "sys_platform == 'linux' or sys_platform == 'win32'"},
 # ]
 # torchvision = [
 #   {index = "pytorch-cu124", marker = "sys_platform == 'linux' or sys_platform == 'win32'"},
 # ]
+{%- elif cookiecutter.accelerator == "rocm" %}
+
+# Uncomment for AMD ROCm GPU support:
+# [[tool.uv.index]]
+# name = "pytorch-rocm62"
+# url = "https://download.pytorch.org/whl/rocm6.2"
+# explicit = true
+#
+# [tool.uv.sources]
+# torch = [
+#   {index = "pytorch-rocm62", marker = "sys_platform == 'linux'"},
+# ]
+# torchvision = [
+#   {index = "pytorch-rocm62", marker = "sys_platform == 'linux'"},
+# ]
+{%- elif cookiecutter.accelerator == "mps" %}
+
+# Apple MPS (Metal Performance Shaders) — no special index needed.
+# MPS is built into standard PyTorch builds for macOS since PyTorch 2.0.
+# Use device="mps" in your code. Note: MPS acceleration only works
+# natively on macOS, not inside Docker containers.
+{%- elif cookiecutter.accelerator == "tpu" %}
+
+# Google TPU via PyTorch/XLA — install torch-xla alongside torch.
+# See: https://github.com/pytorch/xla
+# Run on TPU VMs or Colab; Docker GPU passthrough does not apply to TPUs.
 {%- endif %}
 
 [tool.hatch.build.targets.sdist]
