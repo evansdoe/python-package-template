@@ -54,10 +54,8 @@
                 "github.vscode-github-actions"
             ],
             "settings": {
-				"terminal.integrated.shell.linux": "/bin/bash",
-                "python.venvFolders": [
-                    "~/.cache/pypoetry/virtualenvs"
-                ]
+				"python.defaultInterpreterPath": "/opt/venv/bin/python",
+				"terminal.integrated.shell.linux": "/bin/bash"
 			}
         }
     },
