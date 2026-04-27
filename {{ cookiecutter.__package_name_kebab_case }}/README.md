@@ -207,7 +207,7 @@ Python/uv/dependency setup needed.
 
 | Command | Description |
 |---|---|
-| `uv run poe precommit` | Auto-format (black), sort imports (isort), lint (ruff) |
+| `uv run poe precommit` | Auto-format, sort imports, lint (all via ruff) |
 | `uv run poe check` | Verify format, imports, lint{{ ", types" if cookiecutter.type_checker != "none" else "" }}, and licenses |
 | `uv run poe test` | Run pytest with coverage |
 {%- if cookiecutter.type_checker != "none" %}

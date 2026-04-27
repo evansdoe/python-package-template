@@ -27,7 +27,7 @@ DEFAULTS = {
     "author_name": "Test Author",
     "author_email": "test@example.com",
     "python_version": "3.13",
-    "uv_version": "0.6.12",
+    "uv_version": "latest",
     "timezone": "Europe/Vienna",
     "docstring_style": "google",
     "open_source_license": "MIT",
@@ -40,7 +40,7 @@ DEFAULTS = {
     "type_checker": "mypy",
     "include_cli": "True",
     "include_security_scans": "True",
-    "include_pypi_publish": "True",
+    "include_pypi_publish": "False",
 }
 
 

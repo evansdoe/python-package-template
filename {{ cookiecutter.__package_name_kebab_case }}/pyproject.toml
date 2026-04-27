@@ -99,9 +99,7 @@ include = ["{{ cookiecutter.__package_name_snake_case }}"]
 [dependency-groups]
 dev = [
   "poethepoet>=0.20.0",
-  "black[jupyter]>=23.3.0",
-  "ruff>=0.0.272",
-  "isort>=5.12.0",
+  "ruff>=0.4.0",
   "pytest>=7.3.2",
   "pytest-clarity>=1.0.1",
   "pytest-cov>=4.1.0",
@@ -129,12 +127,10 @@ dev = [
 
 [tool.poe.tasks]
 # https://github.com/nat-n/poethepoet
-_format = "black ."
-_sort_imports = "isort ."
+_format = "ruff format ."
 _lint = "ruff check --fix ."
 
-_check_format = "black --check ."
-_check_sort_imports = "isort --check ."
+_check_format = "ruff format --check ."
 _check_lint = "ruff check ."
 {%- if cookiecutter.type_checker == "mypy" %}
 _typecheck = "mypy ."
@@ -156,23 +152,14 @@ check_licenses = [
 {%- if cookiecutter.include_mkdocs | string == "True" %}
 docs = "mkdocs serve"
 {%- endif %}
-precommit = ["_format", "_sort_imports", "_lint"]
+precommit = ["_format", "_lint"]
 {%- if cookiecutter.type_checker != "none" %}
-check = ["_check_format", "_check_sort_imports", "_check_lint", "_typecheck", "check_licenses"]
+check = ["_check_format", "_check_lint", "_typecheck", "check_licenses"]
 typecheck = "_typecheck"
 {%- else %}
-check = ["_check_format", "_check_sort_imports", "_check_lint", "check_licenses"]
+check = ["_check_format", "_check_lint", "check_licenses"]
 {%- endif %}
 test = "pytest"
-
-[tool.black]
-# https://black.readthedocs.io/en/stable/usage_and_configuration/the_basics.html#configuration-via-a-file
-line-length = 120
-target-version = ["py{{ cookiecutter.python_version | replace('.', '') }}"]
-
-[tool.isort]
-# https://pycqa.github.io/isort/docs/configuration/config_files
-profile = "black"
 
 [tool.pytest.ini_options]
 # https://docs.pytest.org/en/7.1.x/reference/customize.html
@@ -184,13 +171,24 @@ testpaths = ["{{ cookiecutter.__package_name_snake_case }}", "tests"]
 norecursedirs = [ ]
 
 [tool.ruff]
-# https://github.com/charliermarsh/ruff
+# https://docs.astral.sh/ruff/
 fix = true
 line-length = 120
 src = ["{{ cookiecutter.__package_name_snake_case }}", "tests"]
+target-version = "py{{ cookiecutter.python_version | replace('.', '') }}"
+
+[tool.ruff.format]
+docstring-code-format = true
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "SIM"]
+# E/F/W = pycodestyle + pyflakes, I = isort, UP = pyupgrade, B = bugbear, SIM = simplify
 
 [tool.ruff.lint.pycodestyle]
 max-doc-length = 120
+
+[tool.ruff.lint.isort]
+known-first-party = ["{{ cookiecutter.__package_name_snake_case }}"]
 
 [tool.ruff.lint.pydocstyle]
 convention = "{{ cookiecutter.docstring_style }}"

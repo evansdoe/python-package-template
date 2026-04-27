@@ -7,7 +7,7 @@
   "author_name": "Your Name",
   "author_email": "your.name@example.com",
   "python_version": "3.13",
-  "uv_version": "0.6.12",
+  "uv_version": "latest",
   "timezone": "Europe/Vienna",
   "docstring_style": ["google", "numpy"],
   "open_source_license": ["MIT", "Apache-2.0", "BSD-3-Clause", "Proprietary"],
@@ -20,7 +20,7 @@
   "type_checker": ["mypy", "ty", "none"],
   "include_cli": false,
   "include_security_scans": true,
-  "include_pypi_publish": true,
+  "include_pypi_publish": false,
   "__package_name_kebab_case": "{{ cookiecutter.package_name|slugify }}",
   "__package_name_snake_case": "{{ cookiecutter.package_name|slugify(separator='_') }}",
   "__year": "{% now 'utc', '%Y' %}"

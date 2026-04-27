@@ -19,7 +19,7 @@ A modern, comprehensive [Cookiecutter](https://github.com/cookiecutter/cookiecut
 
 - **⚡ Fast by Default:** `uv` for dependency management, `hatchling` for builds, `ruff` for linting.
 - **🛠️ Developer Experience:** Fully configured VS Code DevContainers with extensions (Copilot, Jupyter, Ruff, Claude Code) and a `poethepoet` task runner (`poe check`, `poe test`).
-- **🛡️ Code Quality:** Pre-commit hooks with `ruff`, `black`, and `isort`. Choose between `mypy` (stable) or `ty` (Astral, fast, beta) for type checking — or skip type checking entirely.
+- **🛡️ Code Quality:** Pre-commit hooks with `ruff` for formatting, linting, and import sorting. Choose between `mypy` (stable) or `ty` (Astral, fast, beta) for type checking — or skip type checking entirely.
 - **🐳 GPU-Aware Docker:** Multi-stage builds (build → runtime → dev) with dynamic NVIDIA CUDA base image selection, `shm_size`, and GPU deploy blocks in `docker-compose.yml`.
 - **🔒 Enterprise Features:** License auditing via `liccheck`, SAST scanning (CodeQL for GitHub, native templates for GitLab), secret detection, and dependency vulnerability scanning.
 - **📚 Documentation:** MkDocs Material site with auto-generated API docs, deployed to GitHub Pages or GitLab Pages on merge to `main`.
@@ -165,7 +165,7 @@ my-package/
 | `package_url` | — | Repository URL |
 | `author_name` / `author_email` | — | Author identity |
 | `python_version` | `3.13` | Python version (pinned in `.python-version` too) |
-| `uv_version` | `0.6.12` | uv version for CI |
+| `uv_version` | `latest` | uv version for CI |
 | `timezone` | `Europe/Vienna` | Timezone for Docker dev container |
 | `docstring_style` | `google` | `google` or `numpy` |
 | `open_source_license` | `MIT` | `MIT`, `Apache-2.0`, `BSD-3-Clause`, or `Proprietary` |
@@ -178,7 +178,7 @@ my-package/
 | `include_precommit` | `true` | Pre-commit hooks |
 | `include_cli` | `false` | Typer CLI entry point |
 | `include_security_scans` | `true` | GitLab SAST / Secret Detection / Dependency Scanning |
-| `include_pypi_publish` | `true` | Publish workflow on tag push |
+| `include_pypi_publish` | `false` | Publish workflow on tag push |
 
 ---
 

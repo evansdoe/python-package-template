@@ -13,23 +13,12 @@ repos:
       - id: check-merge-conflict
       - id: debug-statements
 
-  - repo: https://github.com/psf/black
-    rev: 24.4.2
-    hooks:
-      - id: black
-        args: ['--line-length=120']
-
-  - repo: https://github.com/pycqa/isort
-    rev: 5.13.2
-    hooks:
-      - id: isort
-        args: ['--profile=black']
-
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.4.8
+    rev: v0.11.12
     hooks:
+      - id: ruff-format
       - id: ruff
-        args: ['--fix', '--line-length=120']
+        args: ['--fix']
 {%- if cookiecutter.type_checker == "mypy" %}
 
   - repo: https://github.com/pre-commit/mirrors-mypy
