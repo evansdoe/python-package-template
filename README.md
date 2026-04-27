@@ -5,7 +5,7 @@
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Checked with ty](https://img.shields.io/badge/type%20checker-mypy%20%7C%20ty-blue)](https://docs.astral.sh/ty/)
 
-A modern, production-ready [Cookiecutter](https://github.com/cookiecutter/cookiecutter) template for Python projects.
+A modern, comprehensive [Cookiecutter](https://github.com/cookiecutter/cookiecutter) template for Python projects.
 
 **Why another Python template?** Most templates assume you're building a standalone package on a single CI platform. This one is built for how teams actually work:
 
@@ -21,7 +21,7 @@ A modern, production-ready [Cookiecutter](https://github.com/cookiecutter/cookie
 - **🛠️ Developer Experience:** Fully configured VS Code DevContainers with extensions (Copilot, Jupyter, Ruff, Claude Code) and a `poethepoet` task runner (`poe check`, `poe test`).
 - **🛡️ Code Quality:** Pre-commit hooks with `ruff`, `black`, and `isort`. Choose between `mypy` (stable) or `ty` (Astral, fast, beta) for type checking — or skip type checking entirely.
 - **🐳 GPU-Aware Docker:** Multi-stage builds (build → runtime → dev) with dynamic NVIDIA CUDA base image selection, `shm_size`, and GPU deploy blocks in `docker-compose.yml`.
-- **🔒 Enterprise Ready:** License auditing via `liccheck`, SAST scanning (CodeQL for GitHub, native templates for GitLab), secret detection, and dependency vulnerability scanning.
+- **🔒 Enterprise Features:** License auditing via `liccheck`, SAST scanning (CodeQL for GitHub, native templates for GitLab), secret detection, and dependency vulnerability scanning.
 - **📚 Documentation:** MkDocs Material site with auto-generated API docs, deployed to GitHub Pages or GitLab Pages on merge to `main`.
 - **📦 Publishing:** PyPI trusted publishing (GitHub) or GitLab Package Registry publishing on version tags.
 - **🔄 Template Updates:** Cruft integration with a non-blocking "template drift" CI check, so teams know when upstream improvements are available.
@@ -161,7 +161,7 @@ my-package/
 | `package_name` | `My Package` | Human-readable project name |
 | `package_description` | — | Short description |
 | `is_subproject` | `true` | Monorepo subproject under `src/`, or standalone repo |
-| `include_gpu` | `false` | NVIDIA CUDA base image + GPU docker-compose config |
+| `accelerator` | `none` | Hardware accelerator: `none`, `cuda`, `rocm`, `mps`, or `tpu` |
 | `package_url` | — | Repository URL |
 | `author_name` / `author_email` | — | Author identity |
 | `python_version` | `3.13` | Python version (pinned in `.python-version` too) |
